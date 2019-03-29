@@ -8,11 +8,16 @@
 + Quicksort
 + Binary search
 + Insertion sort
++ Signal and Error-handling
++ Jmp()
++ atexit()
++ debug with assert()
 + Bit
 + Misc. functions
 + Command Line Argument
 + Time
 + Memory: stack and heap
++ Reference
 
 ## STRING
 > #include <string.h>
@@ -88,6 +93,7 @@ char* allocateString( char* inString ){
 #### Searching in string
 ##### For 1 character
 `char* strchr(char* string, int c);`
+
 `char* strrchr(char* string, int c);`
 
 ##### For a substring
@@ -95,7 +101,9 @@ char* allocateString( char* inString ){
 
 ##### For first character in/not in a set
 `size_t strspn(const char *s, const char *charset);`  -> not in charset
+
 `size_t strcspn(const char *s, const char *charset);` -> in charset
+
 `char* strpbrk(char* string, char* charset);` -> in charset
 
 #### Parsing
@@ -540,7 +548,8 @@ sum = sumargs(3, 10.0, 20.0, 30.0);
 // Initializes a pointer to point to the first unnamed argument
 va_list argp; 		
 va_start(argp, n);  
-// argp is a local state variable used to traverse the parameters, argp should NEVER be de-referenced!
+// argp is a local state variable used to traverse the parameters,
+// argp should NEVER be de-referenced!
 // n is the name of the last parameter before the variable argument list, i.e., the last parameter of which the calling function  knows the type.
 double num = va_arg(argp, double);
 // get the current argument
@@ -766,8 +775,50 @@ void handler(int signum)
 ## JUMP: Controlled Re-entry to Code
 > #include<setjmp.h>
 
+***jmp_buf***		- type
 ***setjmp*** - is a macro, “marks” a place in the program (the target of a future jump)  
 ***longjmp***	-	function: to return to the placed “marked” by setjmp`
+`void longjmp(jmp_buf env, int return_value_of_setjmp)`
+
+**Always call setjmp first!**
+**Call longjmp() before the function that contains the call for setjmp() ends!**
+
+## atexit()
+`int atexit(void (*function_name)(void));`
+> Registers the name of a function that should be called whenever main() ends or the exit function is called.
+> Returns 0 on success, and non-zero on failure.
+> The exit handler function usually performs vital cleanup, such as closing files
+> Eliminate code redundancy, the same cleanup work performed by several handlers
+
+```c
+void cleanup(void){
+    printf("I'm in the exit handler!\n");
+    return;
+}
+int main() {
+  atexit(cleanup);
+}
+```
+
+## Debug with assert()
+> #include <assert.h>
+
+`void assert(boolean_expression);`
+> assert() terminates when boolean_expression is false.
+
+```c
+int main( void ){
+    int a[9] = {10, 20, 30, 40,
+                50, 60, 70, 80, 90};
+    // int i = 10; // error!
+    int i = 9; 	 // error fixed!
+
+    assert(0 <= i && i < 10);
+    printf("%d\n", a[i]);
+
+    return 0;
+}
+```
 
 
 ## Bit
@@ -929,5 +980,11 @@ strftime(buffer, sizeof(buffer), "%A, %b %d %I:%M %p %Y\n", timeptr);
 A stack-frame contains four different elements:
 Parameters, Local variables, Return value (if any) and Where it should return when its processing is done.
 
-## cdecl
+## Reference
+#### man <function>
+**C's function manual**
+> Open command line
+> $ man strtok
+
+####  cdecl
 Neat program in command line to translate C code to human language
